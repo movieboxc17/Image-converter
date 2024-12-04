@@ -106,6 +106,28 @@
             color: #00d1ff;
         }
 
+        /* Footer styling */
+        footer {
+            background-color: #222;
+            color: #aaa;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        footer a {
+            color: #00d1ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.5em;
@@ -158,6 +180,12 @@
         <p id="result-message"></p>
         <a id="download-link" style="display: none;" download="converted-image">Download Converted Image</a>
     </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; Teknik AB 2024 | Support: 
+        <a href="mailto:teknik.ab.servers@gmail.com">servers.teknik.ab@gmail.com</a>
+    </footer>
 
     <script>
         const dropArea = document.getElementById('drop-area');
