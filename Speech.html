@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech Converter</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1f1f1f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Shoutout banner */
+        #shoutout-banner {
+            background-color: #00d1ff;
+            color: #1f1f1f;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #shoutout-banner .icon {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+
+        /* Container styling */
+        #container {
+            background-color: #333;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-top: 80px; /* Offset for the shoutout banner */
+        }
+
+        h1 {
+            color: #00d1ff;
+            font-size: 1.8em;
+        }
+
+        /* Form inputs */
+        textarea,
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 150px;
+            background-color: #444;
+            color: #ddd;
+        }
+
+        select {
+            background-color: #444;
+            color: #ddd;
+        }
+
+        button {
+            background-color: #00d1ff;
+            color: #1f1f1f;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #00b7e1;
+        }
+
+        #result-message {
+            margin-top: 15px;
+            font-size: 1em;
+            color: #00d1ff;
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #222;
+            color: #aaa;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        footer a {
+            color: #00d1ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            #container {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shoutout Banner -->
+    <div id="shoutout-banner">
+        <span class="icon">📢</span> Shoutout to our amazing users and supporters!
+    </div>
+
+    <div id="container">
+        <h1>Text to Speech Converter</h1>
+        <p>Convert text to speech directly in your browser.</p>
+
+        <textarea id="input-text" placeholder="Enter text here..."></textarea>
+
+        <select id="voice-select">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Spanish (Spain)</option>
+            <option value="fr-FR">French</option>
+            <option value="de-DE">German</option>
+            <option value="it-IT">Italian</option>
+            <option value="ja-JP">Japanese</option>
+        </select>
+
+        <button type="button" onclick="convertTextToSpeech()">Convert to Speech</button>
+
+        <p id="result-message"></p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; Teknik AB 2024 | Support: 
+        <a href="mailto:teknik.ab.servers@gmail.com">servers.teknik.ab@gmail.com</a>
+    </footer>
+
+    <script>
+        const inputText = document.getElementById('input-text');
+        const voiceSelect = document.getElementById('voice-select');
+        const resultMessage = document.getElementById('result-message');
+
+        function convertTextToSpeech() {
+            const text = inputText.value.trim();
+            const selectedVoice = voiceSelect.value;
+
+            if (!text) {
+                resultMessage.textContent = "Please enter some text to convert.";
+                return;
+            }
+
+            const msg = new SpeechSynthesisUtterance();
+            msg.text = text;
+            msg.lang = selectedVoice;
+
+            msg.onstart = function() {
+                resultMessage.textContent = "Speech is being generated...";
+            };
+
+            msg.onend = function() {
+                resultMessage.textContent = "Conversion successful!";
+            };
+
+            window.speechSynthesis.speak(msg);
+        }
+    </script>
+
+</body>
+</html>
