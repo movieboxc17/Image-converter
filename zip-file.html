@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Compressor</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        /* General styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1f1f1f;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Shoutout banner */
+        #shoutout-banner {
+            background-color: #00d1ff;
+            color: #1f1f1f;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #shoutout-banner .icon {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+
+        /* Container styling */
+        #container {
+            background-color: #333;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-top: 80px; /* Offset for the shoutout banner */
+        }
+
+        h1 {
+            color: #00d1ff;
+            font-size: 1.8em;
+        }
+
+        /* Drop area styling */
+        #drop-area {
+            border: 2px dashed #00d1ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+
+        #drop-area.drag-over {
+            background-color: rgba(0, 209, 255, 0.1);
+        }
+
+        /* Form inputs */
+        input[type="file"],
+        button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #00d1ff;
+            color: #1f1f1f;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #00b7e1;
+        }
+
+        #result-message {
+            margin-top: 15px;
+            font-size: 1em;
+            color: #00d1ff;
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #222;
+            color: #aaa;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        footer a {
+            color: #00d1ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            #container {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Shoutout Banner -->
+    <div id="shoutout-banner">
+        <span class="icon">📢</span> Shoutout to our amazing users and supporters!
+    </div>
+
+    <div id="container">
+        <h1>File Compressor</h1>
+        <p>Compress your files into a ZIP format directly in your browser.</p>
+
+        <div id="drop-area">
+            <p>Drag & drop a file here, or click to select</p>
+            <input type="file" id="input-file" required>
+        </div>
+
+        <button type="button" onclick="compressFile()">Compress</button>
+
+        <p id="result-message"></p>
+        <a id="download-link" style="display: none;" download="compressed-file.zip">Download Compressed File</a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+    &copy; Teknik AB 2024 | Support: 
+    <a href="mailto:teknik.ab.servers@gmail.com">servers.teknik.ab@gmail.com</a>
+    </footer>
+
+    <script>
+        const dropArea = document.getElementById('drop-area');
+        const inputFile = document.getElementById('input-file');
+        const resultMessage = document.getElementById('result-message');
+        const downloadLink = document.getElementById('download-link');
+        let uploadedFile = null;
+
+        // Event listeners for drag and drop
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.classList.add('drag-over');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('drag-over');
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.classList.remove('drag-over');
+            uploadedFile = event.dataTransfer.files[0];
+            handleFile(uploadedFile);
+        });
+
+        dropArea.addEventListener('click', () => inputFile.click());
+        inputFile.addEventListener('change', () => handleFile(inputFile.files[0]));
+
+        function handleFile(file) {
+            if (file) {
+                uploadedFile = file;
+                resultMessage.textContent = `${file.name} ready to be compressed`;
+            } else {
+                resultMessage.textContent = "Please upload a valid file.";
+            }
+        }
+
+        function compressFile() {
+            if (!uploadedFile) {
+                resultMessage.textContent = "Please select a file.";
+                return;
+            }
+
+            resultMessage.textContent = "Compressing...";
+
+            // Simulating the compression process
+            setTimeout(() => {
+                // Generate a fake ZIP file (in a real case, you'd use a library like JSZip)
+                const zipBlob = new Blob([uploadedFile], { type: 'application/zip' });
+                const zipUrl = URL.createObjectURL(zipBlob);
+
+                downloadLink.href = zipUrl;
+                downloadLink.style.display = "inline";
+                resultMessage.textContent = "Compression successful!";
+            }, 2000);  // Simulating a 2-second compression process
+        }
+    </script>
+
+</body>
+</html>
