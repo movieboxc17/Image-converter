@@ -20,182 +20,126 @@
             min-height: 100vh;
         }
 
-        /* Shoutout banner */
-        #shoutout-banner {
-            background-color: #00d1ff;
-            color: #1f1f1f;
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        <style>
+    /* Shoutout banner */
+    #shoutout-banner {
+        background: linear-gradient(to right, #00d1ff, #007bff);
+        color: #fff;
+        width: 100%;
+        padding: 15px 0;
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: bold;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        animation: pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
         }
-
-        #shoutout-banner .icon {
-            margin-right: 10px;
-            font-size: 1.5em;
+        50% {
+            transform: scale(1.03);
         }
+    }
 
-        /* Container styling */
-        #container {
-            background-color: #333;
-            width: 90%;
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            margin-top: 80px; /* Offset for the shoutout banner */
+    #shoutout-banner .icon {
+        margin-right: 10px;
+        font-size: 1.5em;
+        animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
         }
-
-        h1 {
-            color: #00d1ff;
-            font-size: 1.8em;
+        50% {
+            transform: translateY(-5px);
         }
+    }
 
-        /* Drop area styling */
-        #drop-area {
-            border: 2px dashed #00d1ff;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            transition: background-color 0.3s;
-        }
+    /* Footer styling */
+    footer {
+        background-color: #111;
+        color: #ccc;
+        width: 100%;
+        text-align: center;
+        padding: 20px 0;
+        font-size: 0.9em;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+    }
 
-        #drop-area.drag-over {
-            background-color: rgba(0, 209, 255, 0.1);
-        }
+    footer .links,
+    footer .social {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
 
-        /* Form inputs */
-        input[type="file"],
-        select,
-        button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            font-size: 1em;
-            border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
+    footer .links button {
+        background-color: #00d1ff;
+        color: #1f1f1f;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-        select {
-            background-color: #444;
-            color: #ddd;
-        }
+    footer .links button:hover {
+        background-color: #00b7e1;
+    }
 
-        button {
-            background-color: #00d1ff;
-            color: #1f1f1f;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    footer .social i {
+        font-size: 1.5em;
+        color: #00d1ff;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
 
-        button:hover {
-            background-color: #00b7e1;
-        }
+    footer .social i:hover {
+        color: #00b7e1;
+    }
 
-        #result-message {
-            margin-top: 15px;
-            font-size: 1em;
-            color: #00d1ff;
-        }
+    footer a {
+        color: #00d1ff;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
 
-        /* Footer styling */
-        footer {
-            background-color: #222;
-            color: #aaa;
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 0.9em;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-        }
+    footer a:hover {
+        color: #00b7e1;
+    }
+</style>
 
-        footer a {
-            color: #00d1ff;
-            text-decoration: none;
-        }
+<!-- Updated Shoutout Banner -->
+<div id="shoutout-banner">
+    <span class="icon">📢</span> Big thanks to our amazing users for their support!
+</div>
 
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.5em;
-            }
-
-            #container {
-                width: 95%;
-                padding: 15px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Shoutout Banner -->
-    <div id="shoutout-banner">
-        <span class="icon">📢</span> Shoutout to our amazing users and supporters!
+<!-- Footer -->
+<footer>
+    <div class="links">
+        <button onclick="location.href='speech.html'">Try Text to Speech Converter</button>
+        <button onclick="location.href='zip-file.html'">Try Zip-File Converter</button>
+        <button onclick="location.href='pdf-con.html'">Try PDF Merger</button>
     </div>
-
-    <div id="container">
-        <h1>Image Converter</h1>
-        <p>Convert images to different formats directly in your browser.</p>
-
-        <div id="drop-area">
-            <p>Drag & drop an image here, or click to select</p>
-            <input type="file" id="input-image" accept="image/*" style="display: none;" required>
-        </div>
-
-        <select id="format-select">
-            <option value="png">Convert to PNG</option>
-            <option value="jpeg">Convert to JPEG</option>
-            <option value="webp">Convert to WEBP</option>
-            <option value="bmp">Convert to BMP</option>
-            <option value="gif">Convert to GIF</option>
-            <option value="ico">Convert to ICO (Icon)</option>
-            <option value="tiff">Convert to TIFF</option>
-        </select>
-
-        <div id="ico-size" style="display: none;">
-            <label for="icon-size-select">Select ICO Size:</label>
-            <select id="icon-size-select">
-                <option value="16">16x16</option>
-                <option value="32">32x32</option>
-                <option value="64">64x64</option>
-            </select>
-        </div>
-
-        <button type="button" onclick="convertImage()">Convert</button>
-
-        <p id="result-message"></p>
-        <a id="download-link" style="display: none;" download="converted-image">Download Converted Image</a>
+    <div class="social">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-linkedin-in"></i>
+        <i class="fab fa-github"></i>
     </div>
-
-    <!-- Footer -->
-    <footer>
-    &copy; Teknik AB 2024 | Support: 
-    <a href="mailto:teknik.ab.servers@gmail.com">servers.teknik.ab@gmail.com</a>
-    <a href="speech.html">
-        <button>Try our Text to Speech Converter</button>
-    </a>
-        <a href="zip-file.html">
-        <button>Try our Zip-File convetrer</button>
-    </a>
-        </a>
-        <a href="pdf-con.html">
-        <button>Try our PDF Merger</button>
-    </a>
+    <p>&copy; Teknik AB 2024 | Support: <a href="mailto:servers.teknik.ab@gmail.com">servers.teknik.ab@gmail.com</a></p>
 </footer>
+
 
     
     <script>
