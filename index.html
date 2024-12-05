@@ -112,32 +112,31 @@
             color: #aaa;
             width: 100%;
             text-align: center;
-            padding: 20px 10px;
+            padding: 20px 0;
             font-size: 0.9em;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
         }
 
-        footer a,
-        footer button {
-            color: #00d1ff;
-            background-color: #444;
+        footer a {
             text-decoration: none;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        footer a:hover,
+        footer button {
+            color: #fff;
+            background-color: #00d1ff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin: 5px;
+        }
+
         footer button:hover {
-            background-color: #555;
+            background-color: #00b7e1;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
         }
 
         @media (max-width: 600px) {
@@ -156,7 +155,7 @@
 
     <!-- Shoutout Banner -->
     <div id="shoutout-banner">
-        <span class="icon">📢</span> Thank you to our amazing users for your continued support!
+        <span class="icon">📢</span> Shoutout to our amazing users and supporters!
     </div>
 
     <div id="container">
@@ -195,10 +194,12 @@
 
     <!-- Footer -->
     <footer>
-        <span>&copy; Teknik AB 2024 | Support: <a href="mailto:servers.teknik.ab@gmail.com">servers.teknik.ab@gmail.com</a></span>
-        <a href="speech.html"><button>Text to Speech Converter</button></a>
-        <a href="zip-file.html"><button>Zip File Converter</button></a>
-        <a href="pdf-con.html"><button>PDF Merger</button></a>
+        &copy; Teknik AB 2024 | Support: <a href="mailto:servers.teknik.ab@gmail.com">servers.teknik.ab@gmail.com</a>
+        <div>
+            <a href="speech.html"><button>Text to Speech Converter</button></a>
+            <a href="zip-file.html"><button>Zip File Converter</button></a>
+            <a href="pdf-con.html"><button>PDF Merger</button></a>
+        </div>
     </footer>
 
     <script>
@@ -274,10 +275,8 @@
                     canvas.toBlob((blob) => {
                         const url = URL.createObjectURL(blob);
                         downloadLink.href = url;
-                        downloadLink.download = `converted-image.${format}`;
-                        downloadLink.style.display = "inline";
-                        downloadLink.textContent = `Download ${format.toUpperCase()} Image`;
-                        resultMessage.textContent = "Image converted successfully!";
+                        downloadLink.style.display = 'block';
+                        downloadLink.textContent = "Download Converted Image";
                     }, `image/${format}`);
                 };
                 img.src = event.target.result;
@@ -285,5 +284,6 @@
             reader.readAsDataURL(uploadedFile);
         }
     </script>
+
 </body>
 </html>
