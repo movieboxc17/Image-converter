@@ -3,287 +3,672 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Converter</title>
+    <title>Ultimate Image Converter & Editor</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <style>
-        /* General styling */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1f1f1f;
-            color: #fff;
+        :root {
+            --primary-color: #00d1ff;
+            --secondary-color: #ff6b6b;
+            --background: #1a1a1a;
+            --card-bg: rgba(51, 51, 51, 0.95);
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
         }
 
-        /* Shoutout banner */
-        #shoutout-banner {
-            background-color: #00d1ff;
-            color: #1f1f1f;
-            width: 100%;
-            padding: 15px 0;
+        #app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
             text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, rgba(0,209,255,0.1) 0%, rgba(0,209,255,0.05) 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            border: none;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--primary-color), 
+                var(--secondary-color), 
+                var(--primary-color));
+            background-size: 400% 400%;
+            z-index: -1;
+            animation: borderGradient 12s ease infinite;
+            border-radius: 22px;
+        }
+
+        @keyframes borderGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .tools-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .tool-group {
+            background: linear-gradient(145deg, rgba(51, 51, 51, 0.9), rgba(41, 41, 41, 0.8));
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 0 50px rgba(0, 209, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tool-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 209, 255, 0.15);
+        }
+
+        .tool-group h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
             font-size: 1.2em;
-            font-weight: bold;
-            position: fixed;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        #shoutout-banner .icon {
-            margin-right: 10px;
-            font-size: 1.5em;
+        .glass-button {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 209, 255, 0.1), rgba(0, 209, 255, 0.05));
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 209, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
         }
 
-        /* Container styling */
-        #container {
-            background-color: #333;
-            width: 90%;
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            margin-top: 80px; /* Offset for the shoutout banner */
+        .glass-button:hover {
+            background: linear-gradient(135deg, rgba(0, 209, 255, 0.2), rgba(0, 209, 255, 0.15));
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 20px rgba(0, 209, 255, 0.2),
+                0 0 0 1px rgba(0, 209, 255, 0.2),
+                inset 0 0 15px rgba(0, 209, 255, 0.1);
+            letter-spacing: 1px;
         }
 
-        h1 {
-            color: #00d1ff;
-            font-size: 1.8em;
-        }
-
-        /* Drop area styling */
         #drop-area {
-            border: 2px dashed #00d1ff;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            transition: background-color 0.3s;
+            border: 2px dashed var(--primary-color);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(145deg, 
+                rgba(0, 209, 255, 0.05), 
+                rgba(0, 209, 255, 0.02));
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.005); }
+            100% { transform: scale(1); }
         }
 
         #drop-area.drag-over {
-            background-color: rgba(0, 209, 255, 0.1);
+            background: rgba(0, 209, 255, 0.1);
+            transform: scale(1.02);
         }
 
-        /* Form inputs */
-        input[type="file"],
-        select,
-        button {
-            width: 100%;
-            padding: 12px;
+        .preview-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.2),
+                inset 0 0 50px rgba(0, 209, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .control-group {
+            background: rgba(0, 209, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
             margin: 10px 0;
-            font-size: 1em;
-            border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
         }
 
-        select {
-            background-color: #444;
-            color: #ddd;
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
         }
 
-        button {
-            background-color: #00d1ff;
-            color: #1f1f1f;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #00b7e1;
-        }
-
-        #result-message {
-            margin-top: 15px;
-            font-size: 1em;
-            color: #00d1ff;
-        }
-
-        /* Footer styling */
-        footer {
-            background-color: #222;
-            color: #aaa;
+        input[type="range"] {
             width: 100%;
-            text-align: center;
-            padding: 20px 0;
-            font-size: 0.9em;
+            height: 10px;
+            background: linear-gradient(90deg, 
+                var(--primary-color) var(--value, 0%), 
+                rgba(255, 255, 255, 0.1) var(--value, 0%));
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
-        footer a {
-            text-decoration: none;
-        }
-
-        footer button {
-            color: #fff;
-            background-color: #00d1ff;
-            border: none;
-            padding: 12px 20px;
-            font-size: 1em;
-            border-radius: 25px;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.3s, background-color 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            margin: 5px;
+            transition: transform 0.2s;
+            box-shadow: 0 0 15px rgba(0, 209, 255, 0.5);
         }
 
-        footer button:hover {
-            background-color: #00b7e1;
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 2px;
+            margin: 20px 0;
+            transition: width 0.3s ease;
         }
 
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.5em;
+        @media (max-width: 768px) {
+            .tools-panel {
+                grid-template-columns: 1fr;
             }
 
-            #container {
-                width: 95%;
-                padding: 15px;
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .tool-group {
+                padding: 20px;
+                margin: 10px 0;
+            }
+
+            .glass-button {
+                padding: 12px 20px;
             }
         }
+
+        /* Modern scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        /* Enhanced root variables with more color options */
+:root {
+    --primary-color: #00d1ff;
+    --primary-hover: #33dbff;
+    --secondary-color: #ff6b6b;
+    --background: #1a1a1a;
+    --card-bg: rgba(51, 51, 51, 0.95);
+    --text-primary: #ffffff;
+    --text-secondary: #aaaaaa;
+    --success: #4CAF50;
+    --error: #f44336;
+    --gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Enhanced header with gradient animation */
+.header {
+    text-align: center;
+    padding: 40px 0;
+    background: linear-gradient(-45deg, rgba(0,209,255,0.1), rgba(255,107,107,0.1));
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Enhanced tool groups with glass morphism */
+.tool-group {
+    background: linear-gradient(135deg, rgba(51, 51, 51, 0.9), rgba(51, 51, 51, 0.8));
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced buttons with modern hover effects */
+.glass-button {
+    background: linear-gradient(135deg, rgba(0, 209, 255, 0.1), rgba(0, 209, 255, 0.05));
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 28px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    width: 100%;
+    margin: 8px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-button:hover {
+    background: linear-gradient(135deg, rgba(0, 209, 255, 0.2), rgba(0, 209, 255, 0.15));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 209, 255, 0.2);
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced drop area with animation */
+#drop-area {
+    border: 2px dashed var(--primary-color);
+    border-radius: 20px;
+    padding: 50px;
+    text-align: center;
+    background: rgba(0, 209, 255, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+#drop-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent, rgba(0, 209, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: 0.5s;
+}
+
+#drop-area:hover::before {
+    transform: translateX(100%);
+}
+
+/* Enhanced preview container */
+.preview-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: linear-gradient(135deg, var(--card-bg), rgba(51, 51, 51, 0.85));
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.preview-container:hover {
+    transform: scale(1.01);
+}
+
+/* Enhanced range input styling */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 4px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
     </style>
-</head>
-<body>
-
-    <!-- Shoutout Banner -->
-    <div id="shoutout-banner">
-        <span class="icon">📢</span> Shoutout to our amazing users and supporters!
-    </div>
-
-    <div id="container">
-        <h1>Image Converter</h1>
-        <p>Convert images to different formats directly in your browser.</p>
-
-        <div id="drop-area">
-            <p>Drag & drop an image here, or click to select</p>
-            <input type="file" id="input-image" accept="image/*" style="display: none;" required>
+    <body>
+        <div id="app-container">
+            <div class="header">
+                <h1>Ultimate Image Converter & Editor</h1>
+                <p>Convert, Edit, and Transform Your Images</p>
+            </div>
+    
+            <div id="drop-area">
+                <p>Drag & drop images here or click to select</p>
+                <input type="file" id="input-image" accept="image/*" multiple style="display: none;">
+            </div>
+    
+            <div class="tools-panel">
+                <div class="tool-group">
+                    <h3>Convert To</h3>
+                    <select id="format-select" class="glass-button">
+                        <option value="png">PNG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="webp">WebP</option>
+                        <option value="pdf">PDF</option>
+                        <option value="svg">SVG</option>
+                        <option value="gif">GIF</option>
+                        <option value="bmp">BMP</option>
+                        <option value="ico">ICO</option>
+                        <option value="tiff">TIFF</option>
+                        <option value="avif">AVIF</option>
+                    </select>
+                </div>
+    
+                <div class="tool-group">
+                    <h3>Image Effects</h3>
+                    <button class="glass-button" onclick="applyFilter('grayscale')">Grayscale</button>
+                    <button class="glass-button" onclick="applyFilter('sepia')">Sepia</button>
+                    <button class="glass-button" onclick="applyFilter('invert')">Invert</button>
+                    <button class="glass-button" onclick="applyFilter('blur')">Blur</button>
+                </div>
+    
+                <div class="tool-group">
+                    <h3>Image Operations</h3>
+                    <button class="glass-button" onclick="initCropper()">Crop</button>
+                    <button class="glass-button" onclick="rotateImage()">Rotate</button>
+                    <button class="glass-button" onclick="showResizeDialog()">Resize</button>
+                    <button class="glass-button" onclick="addWatermark()">Watermark</button>
+                </div>
+    
+                <div class="tool-group">
+                    <h3>Advanced Options</h3>
+                    <button class="glass-button" onclick="compressImage()">Compress</button>
+                    <button class="glass-button" onclick="extractText()">Extract Text (OCR)</button>
+                    <button class="glass-button" onclick="createCollage()">Create Collage</button>
+                </div>
+            </div>
+    
+            <div class="control-group">
+                <label>Quality</label>
+                <input type="range" id="quality" min="0" max="100" value="80">
+                <span id="quality-value">80%</span>
+            </div>
+    
+            <div class="preview-container" style="display: none;">
+                <img id="preview-image" alt="Preview">
+                <div class="progress-bar" style="width: 0%"></div>
+            </div>
+    
+            <button id="process-button" class="glass-button" onclick="processImages()">Process Images</button>
         </div>
-
-        <select id="format-select">
-            <option value="png">Convert to PNG</option>
-            <option value="jpeg">Convert to JPEG</option>
-            <option value="webp">Convert to WEBP</option>
-            <option value="bmp">Convert to BMP</option>
-            <option value="gif">Convert to GIF</option>
-            <option value="ico">Convert to ICO (Icon)</option>
-            <option value="tiff">Convert to TIFF</option>
-        </select>
-
-        <div id="ico-size" style="display: none;">
-            <label for="icon-size-select">Select ICO Size:</label>
-            <select id="icon-size-select">
-                <option value="16">16x16</option>
-                <option value="32">32x32</option>
-                <option value="64">64x64</option>
-            </select>
-        </div>
-
-        <button type="button" onclick="convertImage()">Convert</button>
-
-        <p id="result-message"></p>
-        <a id="download-link" style="display: none;" download="converted-image">Download Converted Image</a>
-    </div>
-
-    <!-- Footer -->
-    <footer>
-        &copy; Teknik AB 2024 | Support: <a href="mailto:servers.teknik.ab@gmail.com">servers.teknik.ab@gmail.com</a>
-        <div>
-            <a href="speech.html"><button>Text to Speech Converter</button></a>
-            <a href="zip-file.html"><button>Zip File Converter</button></a>
-            <a href="pdf-con.html"><button>PDF Merger</button></a>
-        </div>
-    </footer>
-
-    <script>
-        const dropArea = document.getElementById('drop-area');
-        const inputFile = document.getElementById('input-image');
-        const formatSelect = document.getElementById('format-select');
-        const icoSizeDiv = document.getElementById('ico-size');
-        const iconSizeSelect = document.getElementById('icon-size-select');
-        let uploadedFile = null;
-
-        formatSelect.addEventListener('change', () => {
-            icoSizeDiv.style.display = formatSelect.value === 'ico' ? 'block' : 'none';
-        });
-
-        dropArea.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            dropArea.classList.add('drag-over');
-        });
-
-        dropArea.addEventListener('dragleave', () => {
-            dropArea.classList.remove('drag-over');
-        });
-
-        dropArea.addEventListener('drop', (event) => {
-            event.preventDefault();
-            dropArea.classList.remove('drag-over');
-            uploadedFile = event.dataTransfer.files[0];
-            handleFile(uploadedFile);
-        });
-
-        dropArea.addEventListener('click', () => inputFile.click());
-        inputFile.addEventListener('change', () => handleFile(inputFile.files[0]));
-
-        function handleFile(file) {
-            if (file && file.type.startsWith('image/')) {
-                uploadedFile = file;
-                document.getElementById('result-message').textContent = `${file.name} ready to be converted`;
-            } else {
-                document.getElementById('result-message').textContent = "Please upload a valid image file.";
+    
+        <script>
+            let uploadedFiles = [];
+            let currentFilter = '';
+            let cropper = null;
+    
+            // Initialize elements
+            const dropArea = document.getElementById('drop-area');
+            const inputImage = document.getElementById('input-image');
+            const previewContainer = document.querySelector('.preview-container');
+            const previewImage = document.getElementById('preview-image');
+            const progressBar = document.querySelector('.progress-bar');
+    
+            // Drag and drop handlers
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('drag-over');
+            });
+    
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('drag-over');
+            });
+    
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+    
+            dropArea.addEventListener('click', () => inputImage.click());
+            inputImage.addEventListener('change', (e) => handleFiles(e.target.files));
+    
+            function handleFiles(files) {
+                uploadedFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+                if (uploadedFiles.length > 0) {
+                    showPreview(uploadedFiles[0]);
+                }
             }
-        }
-
-        function convertImage() {
-            const format = formatSelect.value;
-            const resultMessage = document.getElementById('result-message');
-            const downloadLink = document.getElementById('download-link');
-
-            if (!uploadedFile) {
-                resultMessage.textContent = "Please select an image file.";
-                return;
+    
+            function showPreview(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    if (currentFilter) applyFilter(currentFilter);
+                };
+                reader.readAsDataURL(file);
             }
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
+    
+            async function applyFilter(filter) {
+                currentFilter = filter;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
                 const img = new Image();
-                img.onload = function() {
+                
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    switch(filter) {
+                        case 'grayscale':
+                            ctx.filter = 'grayscale(100%)';
+                            break;
+                        case 'sepia':
+                            ctx.filter = 'sepia(100%)';
+                            break;
+                        case 'invert':
+                            ctx.filter = 'invert(100%)';
+                            break;
+                        case 'blur':
+                            ctx.filter = 'blur(5px)';
+                            break;
+                    }
+                    
+                    ctx.drawImage(img, 0, 0);
+                    previewImage.src = canvas.toDataURL();
+                };
+                img.src = previewImage.src;
+            }
+    
+            async function processImages() {
+                if (uploadedFiles.length === 0) return;
+    
+                const format = document.getElementById('format-select').value;
+                const quality = document.getElementById('quality').value / 100;
+    
+                progressBar.style.width = '0%';
+    
+                try {
+                    if (format === 'pdf') {
+                        await convertToPDF(uploadedFiles);
+                    } else {
+                        if (uploadedFiles.length > 1) {
+                            await processBatchImages(format, quality);
+                        } else {
+                            await processSingleImage(format, quality);
+                        }
+                    }
+                    progressBar.style.width = '100%';
+                } catch (error) {
+                    console.error('Processing error:', error);
+                }
+            }
+    
+            async function convertToPDF(images) {
+                const pdf = new jsPDF();
+                for (let i = 0; i < images.length; i++) {
+                    const img = await createImageBitmap(images[i]);
+                    pdf.addImage(img, 'JPEG', 10, 10, 190, 280);
+                    if (i < images.length - 1) pdf.addPage();
+                }
+                const blob = pdf.output('blob');
+                downloadFile(blob, 'converted.pdf');
+            }
+    
+            function initCropper() {
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(previewImage, {
+                    aspectRatio: NaN,
+                    viewMode: 2,
+                    guides: true,
+                    autoCropArea: 0.8,
+                    responsive: true
+                });
+            }
+    
+            async function extractText() {
+                const worker = await Tesseract.createWorker();
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+                const { data: { text } } = await worker.recognize(previewImage);
+                await worker.terminate();
+                
+                // Create text output display
+                const textOutput = document.createElement('div');
+                textOutput.className = 'text-output';
+                textOutput.textContent = text;
+                previewContainer.appendChild(textOutput);
+            }
+    
+            function downloadFile(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+    
+            // Additional utility functions
+            function rotateImage() {
+                if (cropper) {
+                    cropper.rotate(90);
+                } else {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (format === 'ico') {
-                        const icoSize = parseInt(iconSizeSelect.value);
-                        width = icoSize;
-                        height = icoSize;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    canvas.toBlob((blob) => {
-                        const url = URL.createObjectURL(blob);
-                        downloadLink.href = url;
-                        downloadLink.style.display = 'block';
-                        downloadLink.textContent = "Download Converted Image";
-                    }, `image/${format}`);
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(uploadedFile);
-        }
-    </script>
-
-</body>
-</html>
+                    const img = new Image();
+                    img.onload = () => {
+                        canvas.width = img.height;
+                        canvas.height = img.width;
+                        ctx.translate(canvas.width/2, canvas.height/2);
+                        ctx.rotate(Math.PI/2);
+                        ctx.drawImage(img, -img.width/2, -img.height/2);
+                        previewImage.src = canvas.toDataURL();
+                    };
+                    img.src = previewImage.src;
+                }
+            }
+    
+            async function createCollage() {
+                if (uploadedFiles.length < 2) {
+                    alert('Please select at least 2 images for collage');
+                    return;
+                }
+    
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const images = await Promise.all(
+                    uploadedFiles.map(file => createImageBitmap(file))
+                );
+    
+                // Simple grid layout
+                const cols = Math.ceil(Math.sqrt(images.length));
+                const rows = Math.ceil(images.length / cols);
+                const cellWidth = 300;
+                const cellHeight = 300;
+    
+                canvas.width = cols * cellWidth;
+                canvas.height = rows * cellHeight;
+    
+                images.forEach((img, i) => {
+                    const x = (i % cols) * cellWidth;
+                    const y = Math.floor(i / cols) * cellHeight;
+                    ctx.drawImage(img, x, y, cellWidth, cellHeight);
+                });
+    
+                downloadFile(
+                    await new Promise(resolve => canvas.toBlob(resolve)),
+                    'collage.png'
+                );
+            }
+        </script>
+    </body>
+    </html>
+    
+</head>
